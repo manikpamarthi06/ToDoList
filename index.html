@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:mso="urn:schemas-microsoft-com:office:office"
+  xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo list</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <style>
+        #edit {
+            margin-left: 30px;
+            padding-left: 40px;
+            height: 35px;
+            font-size: 15px;
+        }
+       .border {
+            border: 3px solid red;
+            min-height: 50vh;
+            width: 90%;
+        }
+      .btn {
+        background-color: DodgerBlue; /* Blue background */
+        border: none; /* Remove borders */
+        color: white; /* White text */
+        cursor: pointer; /* Mouse pointer on hover */
+      }
+
+      /* Darker background on mouse-over */
+      .btn:hover {
+        background-color: RoyalBlue;
+      }
+
+      .btn1:hover {
+        background-color: rgb(169, 98, 235);
+      }
+      #todo {
+        height: 45px;
+        font-size: 20px;
+      }
+      .striked {
+        text-decoration: line-through;
+      }
+      .hidden {
+        display: none;
+      }
+      #box {
+        border: 1.5px solid green;
+        margin-right: 50%;
+        font-size: 25px;
+        /* display: inline-block; */
+      }
+      #edit_delete {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        /* text-decoration: underline; */
+      }
+    </style>
+    <script type="text/javascript">
+      let tasks = [];
+      let currentEditID = -1;
+
+      function AddTextToEditTextBox(id) {
+        let todoEditBox = document.getElementById("todoEdit");
+        document.getElementById("edit").classList.remove("hidden");
+        let task = tasks.filter((t) => t.id === id);
+        currentEditID = task[0].id;
+        todoEditBox.value = task[0].todo;
+        todoEditBox.focus();
+        createTodoListInHTML();
+      }
+
+      function deleteTask(id) {
+        tasks = tasks.filter((task) => task.id != id);
+        createTodoListInHTML();
+      }
+
+      function doneTodo(id) {
+        tasks = tasks.map((t) => {
+          if (t.id === id) {
+            if (t.status === 1) {
+              t.status = 0;
+            } else {
+              t.status = 1;
+            }
+          }
+          return t;
+        });
+        createTodoListInHTML();
+      }
+      function saveEditedTask() {
+        let todoEditBox = document.getElementById("todoEdit").value;
+        if (!todoEditBox) return;
+        tasks = tasks.map((task) => {
+          if (task.id === currentEditID) task.todo = todoEditBox;
+          return task;
+        });
+        document.getElementById("todoEdit").value = "";
+        createTodoListInHTML();
+        document.getElementById("edit").classList.add("hidden");
+      }
+
+      function createTodoListInHTML() {
+        //get element where you want to create the list
+        let todo_list = document.getElementById("todo_list");
+
+        todo_list.innerHTML = "";
+
+        tasks.forEach((task) => {
+          if (task.status === 0) {
+            todo_list.innerHTML += `<p id = "box"><input onchange='doneTodo(${task.id})' type='checkbox'>
+             ${task.todo}
+            <span id ="edit_delete">
+                <button class='btn' href='#' onclick='deleteTask(${task.id})'><i class="fa fa-trash"></i>Delete</botton>
+                <button class='btn1' href='#' onclick='AddTextToEditTextBox(${task.id})'><i class='fas fa-edit'></i>Edit</button>
+            </span>
+            </p>`;
+          } else {
+            todo_list.innerHTML += `<p id = "box" class = 'striked'><input checked = 'true' onchange='doneTodo(${task.id})' type='checkbox'>
+             ${task.todo}
+             <span id ="edit_delete">
+                <button class='btn' href='#' onclick='deleteTask(${task.id})'><i class="fa fa-trash"></i>Delete</botton>
+                <button class='btn1' href='#' onclick='AddTextToEditTextBox(${task.id})'><i class='fas fa-edit'></i>Edit</button>
+            </span>
+            </p>`;
+          }
+        });
+      }
+
+      function addTodo() {
+        let todo = document.getElementById("todo").value;
+        if (!todo) return;
+        tasks.push({
+          id: tasks.length + 1,
+          todo: todo,
+          status: 0,
+        });
+        document.getElementById("todo").value = "";
+        createTodoListInHTML();
+        // console.log(tasks);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="border">
+    <h1>ToDo list</h1>
+    <input type="text" id="todo" placeholder="add todo list here" />
+    <button onclick="addTodo()">Add</button>
+    <span id="edit" class="hidden">
+      <input type="text" id="todoEdit" placeholder="edit todo list here" />
+      <button onclick="saveEditedTask()">Save</button>
+    </span>
+    <div id="todo_list"></div>
+    </div>
+  </body>
+</html>
